@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+body {
+    margin:0px;
+}
+.area {
+    padding-top:8px;
+    width: 33.33333333%;
+    min-height:256px;
+    float:left;
+}
+#infavor{
+    box-shadow:0px 0px 16px #4B9926 inset;
+}
+#abstention{
+    box-shadow:0px 0px 16px #AA9739 inset;
+}
+#against{
+    box-shadow:0px 0px 16px #B14A2C inset;
+}
+.bar {
+    height:32px;
+    float:left;
+    transition: width 0.5s;
+}
+.bar-container{
+    margin-top:20px;
+    width: 100%;
+    float:left;
+    height:32px;
+    background-color:#888;
+    
+}
+#bar-infavor{
+    width: 0%;
+    background-color:#4B9926;
+}
+#bar-abstention{
+    width: 0%;
+    background-color:#AA9739;
+}
+#bar-against{
+    width: 0%;
+    background-color:#B14A2C;
+}
+#bar-glow{
+    width: 100%;
+    float:left;
+    margin-top:20px;
+    margin-left: -100%;
+    background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+#misplaced {
+    margin:0px;
+    padding:8px;
+    width:calc(100% - 16px);
+    min-height:64px;
+    height: auto;
+    float:left;
+    box-shadow:0px 0px 16px #777 inset;
+}
+.rule{
+    position:absolute;
+    height:16px;
+/*     margin-bottom:4px; */
+    border-right: 4px solid #AA9739;
+    border-bottom: 4px solid #fff;
+    transition: width 0.5s;
+    margin-left:-4px;
+    
+}
+#rule-absolute {
+    width: 50%;
+}
+#rule-simple {
+    max-width: 50%;
+    margin-top:8px;
+    height:8px;
+}
+img {
+    width: calc(100% - 24px);
+    max-width: 64px;
+    margin: 8px;
+}
+</style>
+<script>
+
+seats = {
+    "infavor":    0,
+    "abstention": 0,
+    "against":    0
+};
+
+partyseats = null;
+totalseats = 0;
+
+loadJSON('data.json');
+
+
+function getTotalSeats() {
+    for(var title in partyseats){
+        totalseats += partyseats[title];
+    }
+}
+
+
+function loadJSON(path) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    partyseats = JSON.parse(xhr.responseText);
+                    getTotalSeats();
+                } else {
+                    alert("asdf");
+                }
+            }
+        };
+    xhr.open("GET", path, true);
+    xhr.send();
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+    area = ev.target.parentNode.id;
+    seats[area] -= partyseats[ev.target.id];
+    if (area != "misplaced") {
+        document.getElementById("bar-" + area).style.width = seats[area] / totalseats * 100 + "%";
+        if (area == "against") {
+            document.getElementById("rule-simple").style.width = seats[area] / totalseats * 100 + "%";
+        }
+        if (area == "infavor" && seats["infavor"] > totalseats / 2) {
+            document.getElementById("rule-absolute").style.borderRightColor = "#4B9926";
+        } else if (area == "infavor" && seats["infavor"] == totalseats / 2) {
+            document.getElementById("rule-absolute").style.borderRightColor = "#AA9739";
+        } else if (area == "infavor" && seats["infavor"] < totalseats / 2) {
+            document.getElementById("rule-absolute").style.borderRightColor = "#B14A2C";
+        }
+        if (seats["infavor"] > seats["against"]) {
+            document.getElementById("rule-simple").style.borderRightColor = "#4B9926";
+        } else if (seats["infavor"] == seats["against"]) {
+            document.getElementById("rule-simple").style.borderRightColor = "#AA9739";
+        } else if (seats["infavor"] < seats["against"]) {
+            document.getElementById("rule-simple").style.borderRightColor = "#B14A2C";
+        }
+    }
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var politicparty = ev.dataTransfer.getData("text")
+    if (ev.target.nodeName == "IMG") {
+        ev.target.parentNode.appendChild(document.getElementById(politicparty));
+        var area = ev.target.parentNode.id;
+    } else {
+        ev.target.appendChild(document.getElementById(politicparty));
+        var area = ev.target.id;
+    }
+    seats[area] += partyseats[politicparty]
+//     alert("Total: " + seats["total"] + "\n+: " + seats["infavor"] + "\n~: " + seats["abstention"] + "\n-: " + seats["against"])
+    document.getElementById("bar-" + area).style.width = seats[area] / totalseats * 100 + "%";
+    if (area == "against") {
+            document.getElementById("rule-simple").style.width = seats[area] / totalseats * 100 + "%";
+    }
+    if (area == "infavor" && seats["infavor"] > totalseats / 2) {
+        document.getElementById("rule-absolute").style.borderRightColor = "#4B9926";
+    } else if (area == "infavor" && seats["infavor"] == totalseats / 2) {
+        document.getElementById("rule-absolute").style.borderRightColor = "#AA9739";
+    } else if (area == "infavor" && seats["infavor"] < totalseats / 2) {
+        document.getElementById("rule-absolute").style.borderRightColor = "#B14A2C";
+    }
+    if (seats["infavor"] > seats["against"]) {
+        document.getElementById("rule-simple").style.borderRightColor = "#4B9926";
+    } else if (seats["infavor"] == seats["against"]) {
+        document.getElementById("rule-simple").style.borderRightColor = "#AA9739";
+    } else if (seats["infavor"] < seats["against"]) {
+        document.getElementById("rule-simple").style.borderRightColor = "#B14A2C";
+    }
+    
+}
+</script>
+</head>
+<body>
+<div class="rule" id="rule-absolute"></div>
+<div class="rule" id="rule-simple"></div>
+<div class="bar-container">
+<div class="bar" id="bar-infavor"></div><div class="bar" id="bar-abstention"></div><div class="bar" id="bar-against"></div>
+</div><div class="bar" id="bar-glow"></div>
+<div class="area" id="infavor" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
+<div class="area" id="abstention" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
+<div class="area" id="against" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
+<div id="misplaced" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <img id="pp" title="PP" src="img/pp.svg" draggable="true" ondragstart="drag(event)">
+    <img id="psoe" title="PSOE" src="img/psoe.svg" draggable="true" ondragstart="drag(event)">
+    <img id="podemos" title="Podemos" src="img/podemos.svg" draggable="true" ondragstart="drag(event)">
+    <img id="ciudadanos" title="Ciudadanos" src="img/ciudadanos.svg" draggable="true" ondragstart="drag(event)">
+    <img id="erc" title="ERC" src="img/erc.svg" draggable="true" ondragstart="drag(event)">
+    <img id="dil" title="DiL" src="img/dil.svg" draggable="true" ondragstart="drag(event)">
+    <img id="pnv"  title="PNV" src="img/pnv.svg" draggable="true" ondragstart="drag(event)">
+    <img id="iuup"  title="UP-IU" src="img/iuup.svg" draggable="true" ondragstart="drag(event)">
+    <img id="bildu" title="Bildu" src="img/bildu.svg" draggable="true" ondragstart="drag(event)">
+    <img id="cc" title="CC" src="img/cc.svg" draggable="true" ondragstart="drag(event)">
+</div>
+
+</body>
+</html>
