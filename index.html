@@ -6,11 +6,19 @@ body {
     margin:0px;
 }
 .area {
-    padding-top:8px;
+    padding:8px 0;
     width: 33.33333333%;
-    min-height:256px;
     float:left;
 }
+.area-container{
+    width: 100%;
+    float:left;
+    min-height:256px;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+}
+
 #infavor{
     box-shadow:0px 0px 16px #4B9926 inset;
 }
@@ -82,7 +90,7 @@ body {
     height:8px;
 }
 img {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
     max-width: 64px;
     margin: 8px;
 }
@@ -192,11 +200,19 @@ function drop(ev) {
 <div class="rule" id="rule-absolute"></div>
 <div class="rule" id="rule-simple"></div>
 <div class="bar-container">
-<div class="bar" id="bar-infavor"></div><div class="bar" id="bar-abstention"></div><div class="bar" id="bar-against"></div>
-</div><div class="bar" id="bar-glow"></div>
-<div class="area" id="infavor" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
-<div class="area" id="abstention" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
-<div class="area" id="against" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
+    <div class="bar" id="bar-infavor"></div>
+    <div class="bar" id="bar-abstention"></div>
+    <div class="bar" id="bar-against"></div>
+</div>
+<div class="bar" id="bar-glow"></div>
+
+
+<div class="area-container">
+    <div class="area" id="infavor" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
+    <div class="area" id="abstention" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
+    <div class="area" id="against" ondrop="drop(event)" ondragover="allowDrop(event)" align="center"></div>
+
+</div>
 <div id="misplaced" ondrop="drop(event)" ondragover="allowDrop(event)">
     <img id="pp" title="PP" src="img/pp.svg" draggable="true" ondragstart="drag(event)">
     <img id="psoe" title="PSOE" src="img/psoe.svg" draggable="true" ondragstart="drag(event)">
